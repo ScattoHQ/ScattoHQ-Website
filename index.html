@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ScattoHQ</title>
+<style>
+:root{--bg:#6e1423;--ink:#f7e9e4;--panel:#85212f;--s:88px;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(max-width:560px){:root{--s:62px}}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.45}
+.page{min-height:100vh}
+.page[hidden]{display:none!important}
+#home{display:flex;flex-direction:column;justify-content:center;padding:24px clamp(20px,6vw,72px)}
+#home h1{margin:0;font-size:clamp(56px,17vw,168px);font-weight:800;letter-spacing:-.045em;line-height:.9}
+.tag{margin:16px 0 36px;font-size:20px}
+nav a,nav button{font-family:inherit;background:none;border:0;text-align:left;cursor:pointer;display:block;width:max-content;max-width:100%;font-size:22px;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px;padding:5px 0}
+nav a:hover,nav button:hover{text-decoration-thickness:4px}
+.contact{margin-top:56px;font-size:14px;opacity:.9}
+.contact p{margin:4px 0}
+.contact-title{font-size:17px;font-weight:800}
+.contact-email{margin-top:10px!important}
+.contact-email span{text-decoration:underline;text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+dialog{width:min(520px,92vw);border:0;padding:0;background:var(--ink);color:var(--bg)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.pad{padding:24px}
+h2{margin:0 0 14px;font-size:24px;font-weight:800}
+.rx{display:flex;align-items:center;justify-content:center;width:100%;height:200px;border:0;border-radius:0;font:700 clamp(20px,5vw,28px) "Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);cursor:pointer;text-align:center;padding:12px;user-select:none;-webkit-user-select:none}
+.rx.wait{background:#e63946;color:#fff}.rx.go{background:#3ddc84;color:#1a1a1a}.rx.early{background:#ff9f1c;color:#1a1a1a}
+.rx:focus-visible,dialog button:focus-visible{outline:3px solid var(--bg);outline-offset:3px}
+.best{margin:12px 0 0;font-size:15px;min-height:1.4em}
+.close{margin-top:16px;background:transparent;color:var(--bg);border:2px solid var(--bg);font:700 15px "Helvetica Neue",Helvetica,Arial,sans-serif;padding:8px 20px;cursor:pointer}
+
+/* Tier list maker */
+.wrap{max-width:980px;margin:0 auto;padding:32px 18px 64px}
+#tierPage h1{margin:0 0 6px;font-size:clamp(30px,7vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.sub{margin:0 0 20px}
+hr{border:0;border-top:2px solid var(--ink);margin:24px 0}
+#tierPage h2{margin:0 0 10px;font-size:22px;font-weight:800}
+.btn{position:relative;font:inherit;font-weight:700;font-size:15px;color:var(--ink);background:transparent;border:2px solid var(--ink);border-radius:0;padding:8px 16px;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+.btn:hover,.btn.pri{background:var(--ink);color:var(--bg)}
+.btn.pri:hover{background:transparent;color:var(--ink)}
+.btn:disabled,.btn:disabled:hover{opacity:.35;cursor:default;background:transparent;color:var(--ink)}
+.btn:focus-visible,.btn:focus-within,input:focus-visible,[contenteditable]:focus-visible,.item:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+.tier{display:flex;border:2px solid var(--ink);margin-bottom:8px}
+.lab{width:calc(var(--s) - 4px);flex:none;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:24px;color:#1a1a1a;padding:4px;word-break:break-word;border-right:2px solid var(--ink)}
+.zone{flex:1;display:flex;flex-wrap:wrap;gap:6px;padding:6px;min-height:calc(var(--s) + 12px);background:var(--panel);align-content:flex-start}
+#pool{border:2px dashed var(--ink);background:transparent;padding:8px}
+.item{width:var(--s);height:var(--s);flex:none;border:2px solid var(--ink);background:#ddd center/cover no-repeat;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.item.dragging{opacity:.3}
+.ghost{position:fixed;pointer-events:none;z-index:50;transform:translate(-50%,-50%) scale(1.06);opacity:1}
+.over{outline:3px solid var(--ink);outline-offset:-3px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:26px 0 10px}
+.top h2{margin:0}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.hint{font-size:14px;margin:8px 0 0}
+#trash{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:none;padding:12px 24px;background:#e63946;color:#fff;font-weight:700;z-index:40;border:2px solid var(--ink)}
+#trash.show{display:block}
+#trash.over{outline:3px solid var(--ink);outline-offset:3px}
+#st{color:#ffb3b8;font-weight:700;min-height:1.4em;margin:6px 0 0}
+.back{display:inline-block;margin-bottom:14px;color:var(--ink);font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;background:none;border:0;font:inherit;cursor:pointer;padding:0}
+.back:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+</style>
+</head>
+<body>
+
+<main id="home" class="page">
+  <h1>ScattoHQ</h1>
+  <p class="tag">Mini games in a website.</p>
+  <nav aria-label="ScattoHQ games">
+    <button id="openTier" type="button">Tier list maker</button>
+    <button id="play" type="button">Reaction game</button>
+  </nav>
+  <footer class="contact">
+    <p class="contact-title">Enquiries</p>
+    <p>Questions, feedback or suggestions?</p>
+    <p class="contact-email">Email: <span>scattohq@gmail.com</span></p>
+  </footer>
+</main>
+
+<section id="tierPage" class="page" hidden>
+  <div class="wrap">
+    <button class="back" id="backHome" type="button">← Back to ScattoHQ</button>
+    <h1 id="title" contenteditable="true" spellcheck="false" aria-label="List title">My tier list</h1>
+    <p class="sub">Add images, then drag them into a tier. Tap a tier name or the title to rename it.</p>
+    <hr>
+    <div id="board"></div>
+    <div class="top">
+      <h2>Unranked</h2>
+      <div class="row">
+        <label class="btn pri">Add images<input type="file" id="f" accept="image/*" multiple></label>
+        <button class="btn" id="reset" type="button">Reset ranks</button>
+      </div>
+    </div>
+    <div id="pool" class="zone" data-zone="pool"></div>
+    <p class="hint" id="empty">You can also drop image files anywhere on this page. Drag an image onto the red bar to delete it.</p>
+    <p id="st" aria-live="polite"></p>
+  </div>
+</section>
+
+<div id="trash" data-zone="trash">Drop here to delete</div>
+
+<dialog id="dlg" aria-label="Reaction test">
+  <div class="pad">
+    <h2>Reaction test</h2>
+    <button class="rx" id="rx" type="button">Click to start</button>
+    <p class="best" id="best" aria-live="polite">Wait for green, then click as fast as you can.</p>
+    <button class="close" id="close" type="button">Close</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var home=$('home'),tierPage=$('tierPage'),dlg=$('dlg');
+
+  function showPage(page){
+    home.hidden=page!=='home';
+    tierPage.hidden=page!=='tier';
+    window.scrollTo(0,0);
+  }
+  $('openTier').addEventListener('click',function(){showPage('tier')});
+  $('backHome').addEventListener('click',function(){showPage('home')});
+
+  // Reaction game
+  var box=$('rx'),out=$('best'),st='idle',t0=0,tm=null,best=0;
+  try{best=+localStorage.getItem('rxbest')||0}catch(e){}
+  function set(c,m){box.className='rx '+c;box.textContent=m}
+  function resetReaction(){
+    clearTimeout(tm);st='idle';set('idle','Click to start');
+    out.textContent=best?'Your best on this device: '+best+' ms.':'Wait for green, then click as fast as you can.';
+  }
+  function press(){
+    if(st==='idle'||st==='done'||st==='early'){
+      st='wait';set('wait','Wait for green...');
+      tm=setTimeout(function(){st='go';t0=performance.now();set('go','CLICK NOW!')},1000+Math.random()*3000);
+    }else if(st==='wait'){
+      clearTimeout(tm);st='early';set('early','Too early! Click to try again.');
+    }else if(st==='go'){
+      var ms=Math.round(performance.now()-t0);st='done';
+      if(!best||ms<best){best=ms;try{localStorage.setItem('rxbest',String(best))}catch(e){}}
+      set('done',ms+' ms. Click to go again.');
+      out.textContent='That was '+ms+' ms. Your best on this device: '+best+' ms.';
+    }
+  }
+  box.addEventListener('pointerdown',function(e){e.preventDefault();press()});
+  box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();press()}});
+  $('play').addEventListener('click',function(){resetReaction();dlg.showModal()});
+  $('close').addEventListener('click',function(){dlg.close()});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  dlg.addEventListener('close',resetReaction);
+
+  // Tier list maker
+  var DEF=[['S','#ff7b7b'],['A','#ffb86b'],['B','#ffe27a'],['C','#9be28c'],['D','#7cc4ff']];
+  var S={title:'My tier list',tiers:DEF.map(function(t){return{name:t[0],color:t[1],ids:[]}}),pool:[],imgs:{}};
+  try{
+    var raw=localStorage.getItem('tierlist');
+    if(raw){var o=JSON.parse(raw);if(o&&o.tiers&&o.tiers.length===5&&o.pool&&o.imgs)S=o}
+  }catch(e){}
+  function save(){
+    try{localStorage.setItem('tierlist',JSON.stringify(S));$('st').textContent=''}
+    catch(e){$('st').textContent='Storage is full, so recent changes may not be kept after you close this page.'}
+  }
+  function arr(k){return k==='pool'?S.pool:S.tiers[+k.slice(1)].ids}
+  function lists(){return [S.pool].concat(S.tiers.map(function(t){return t.ids}))}
+  function take(id){lists().forEach(function(a){var i=a.indexOf(id);if(i>-1)a.splice(i,1)})}
+  function move(id,key,before){
+    take(id);var a=arr(key),i=before?a.indexOf(before):-1;
+    if(i<0)a.push(id);else a.splice(i,0,id);
+  }
+  function item(id){
+    var d=document.createElement('div');
+    d.className='item';d.dataset.id=id;d.style.backgroundImage='url('+S.imgs[id]+')';
+    d.tabIndex=0;d.setAttribute('role','img');d.setAttribute('aria-label','Image to rank');
+    return d;
+  }
+  function render(){
+    var b=$('board');b.textContent='';
+    S.tiers.forEach(function(t,i){
+      var r=document.createElement('div'),l=document.createElement('div'),z=document.createElement('div');
+      r.className='tier';l.className='lab';l.style.background=t.color;
+      l.contentEditable='true';l.spellcheck=false;l.textContent=t.name;l.setAttribute('aria-label','Tier name');
+      l.addEventListener('input',function(){t.name=l.textContent.slice(0,14);save()});
+      l.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();l.blur()}});
+      z.className='zone';z.dataset.zone='t'+i;
+      t.ids.forEach(function(id){if(S.imgs[id])z.appendChild(item(id))});
+      r.appendChild(l);r.appendChild(z);b.appendChild(r);
+    });
+    var p=$('pool');p.textContent='';
+    S.pool.forEach(function(id){if(S.imgs[id])p.appendChild(item(id))});
+    $('title').textContent=S.title;
+  }
+
+  var drag=null;
+  function target(x,y){
+    var el=document.elementFromPoint(x,y),z=el&&el.closest('[data-zone]');
+    if(!z)return null;
+    var it=el.closest('.item');
+    return{z:z,before:it&&it.dataset.id!==drag.id&&z.contains(it)?it.dataset.id:null};
+  }
+  function clear(){document.querySelectorAll('.over').forEach(function(n){n.classList.remove('over')})}
+  document.addEventListener('pointerdown',function(e){
+    var it=e.target.closest&&e.target.closest('.item');
+    if(!it||e.button>0||tierPage.hidden)return;
+    drag={it:it,id:it.dataset.id,x:e.clientX,y:e.clientY,on:false,clone:null};
+  });
+  document.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    if(!drag.on){
+      if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)<6)return;
+      drag.on=true;
+      var c=drag.it.cloneNode();c.className='item ghost';document.body.appendChild(c);
+      drag.clone=c;drag.it.classList.add('dragging');$('trash').classList.add('show');
+    }
+    drag.clone.style.left=e.clientX+'px';drag.clone.style.top=e.clientY+'px';
+    clear();var t=target(e.clientX,e.clientY);if(t)t.z.classList.add('over');
+  });
+  function finish(e,cancel){
+    if(!drag)return;
+    var d=drag;drag=null;
+    if(!d.on)return;
+    var t=null;
+    if(!cancel){drag=d;t=target(e.clientX,e.clientY);drag=null}
+    d.clone.remove();clear();$('trash').classList.remove('show');
+    if(t){
+      if(t.z.id==='trash'){take(d.id);delete S.imgs[d.id]}
+      else move(d.id,t.z.dataset.zone,t.before);
+      save();
+    }
+    render();
+  }
+  document.addEventListener('pointerup',function(e){finish(e,false)});
+  document.addEventListener('pointercancel',function(e){finish(e,true)});
+
+  function thumb(f){
+    return new Promise(function(res,rej){
+      var r=new FileReader();
+      r.onload=function(){
+        var im=new Image();
+        im.onload=function(){
+          var s=200,c=document.createElement('canvas'),m=Math.min(im.width,im.height);
+          c.width=c.height=s;c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,s,s);
+          res(c.toDataURL('image/jpeg',.8));
+        };
+        im.onerror=rej;im.src=r.result;
+      };
+      r.onerror=rej;r.readAsDataURL(f);
+    });
+  }
+  function addFiles(files){
+    var fs=[].slice.call(files).filter(function(f){return /^image\//.test(f.type)});
+    fs.reduce(function(p,f){
+      return p.then(function(){
+        return thumb(f).then(function(u){
+          var id='i'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+          S.imgs[id]=u;S.pool.push(id);
+        }).catch(function(){});
+      });
+    },Promise.resolve()).then(function(){save();render()});
+  }
+  $('f').addEventListener('change',function(){addFiles(this.files);this.value=''});
+  tierPage.addEventListener('dragover',function(e){e.preventDefault()});
+  tierPage.addEventListener('drop',function(e){
+    e.preventDefault();
+    if(e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files);
+  });
+  $('reset').addEventListener('click',function(){
+    S.tiers.forEach(function(t){S.pool=S.pool.concat(t.ids);t.ids=[]});
+    save();render();
+  });
+  $('title').addEventListener('input',function(){S.title=this.textContent.slice(0,60);save()});
+  $('title').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();this.blur()}});
+  render();
+})();
+</script>
+</body>
+</html>
